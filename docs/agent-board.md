@@ -26,3 +26,8 @@ OpenCode 멀티 에이전트 운영을 위한 작업 배정판이다.
 1. JDK 17 이상을 설치하고 `001-project-setup.md`의 Backend 검증을 재실행한다.
 2. `003-backend-simulation-api.md`를 `Ready`로 구체화한다.
 3. `004-docker-compose.md`를 Backend API 이후 `Ready`로 구체화한다.
+
+## Team Mode 실행
+- Runbook: `docs/oh-my-opencode-runbook.md`
+- Team spec: `.omo/teams/wolguplab-mvp/config.json`
+- Project config: `.opencode/oh-my-openagent.jsonc`

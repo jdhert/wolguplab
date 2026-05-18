@@ -127,6 +127,7 @@ Integrator는 아래를 확인한다.
 - OpenCode의 Build 또는 Worker agent는 구현에 사용한다.
 - `@qa-reviewer`는 검토 전용으로 사용한다.
 - `@integrator`는 병합과 최종 기록 정리에 사용한다.
+- oh-my-opencode Team Mode 실행 절차는 `docs/oh-my-opencode-runbook.md`를 따른다.
 
 ## 금지 사항
 - Plan 없이 기능을 구현하지 않는다.

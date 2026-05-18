@@ -1,0 +1,31 @@
+{
+  "name": "wolguplab-mvp",
+  "description": "Wolgup Lab MVP team for Plan-first multi-agent work.",
+  "lead": {
+    "kind": "subagent_type",
+    "subagent_type": "sisyphus"
+  },
+  "members": [
+    {
+      "kind": "category",
+      "name": "backend-003",
+      "category": "deep",
+      "worktreePath": "../wolguplab-003-backend",
+      "prompt": "Act as the Backend Worker for Wolgup Lab. Follow AGENTS.md, backend/AGENTS.md, docs/agent-workflow.md, docs/agent-board.md, and docs/plans/003-backend-simulation-api.md. First turn the Plan into Ready by clarifying API contract, validation rules, calculation rules, package structure, tests, Owner, Reviewer, Write Scope, Blocked By, and Handoff Notes. Do not implement backend code until the Plan is Ready. Do not mark the Plan Done. Work only inside the assigned worktree."
+    },
+    {
+      "kind": "category",
+      "name": "infra-004",
+      "category": "quick",
+      "worktreePath": "../wolguplab-004-infra",
+      "prompt": "Act as the Infra Worker for Wolgup Lab. Follow AGENTS.md, docs/agent-workflow.md, docs/agent-board.md, and docs/plans/004-docker-compose.md. Inspect the Plan, identify blockers, and prepare it for later Ready status. Do not implement Docker files until backend API shape is stable. Do not commit secrets. Work only inside the assigned worktree."
+    },
+    {
+      "kind": "category",
+      "name": "qa-main",
+      "category": "quick",
+      "worktreePath": ".",
+      "prompt": "Act as the QA Reviewer for Wolgup Lab. Follow AGENTS.md and docs/agent-workflow.md. Review outputs from backend-003 and infra-004 against their Plan success conditions and Write Scope. Do not edit files. Report blockers, missing tests, scope violations, and readiness to integrate."
+    }
+  ]
+}
