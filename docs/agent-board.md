@@ -7,7 +7,7 @@ OpenCode 멀티 에이전트 운영을 위한 작업 배정판이다.
 | `000-plan-template.md` | Draft | Planner | Integrator | `docs/plans/000-plan-template.md` | 공통 Plan 템플릿 |
 | `001-project-setup.md` | Implemented | Integrator | QA Reviewer | `frontend/*`, `backend/*`, root config | Frontend 검증 통과, Backend는 JDK 17 필요 |
 | `002-frontend-simulation-form.md` | Done | Frontend Worker | QA Reviewer | `frontend/app`, `frontend/components`, `frontend/features`, `frontend/lib` | Mock UI MVP 완료 |
-| `003-backend-simulation-api.md` | Ready | Backend Worker | QA Reviewer | `backend/src/main/java`, `backend/src/test/java`, `backend/build.gradle` | Ready; JDK 17 필요; 002 Mock 입력/결과 타입 기준 API 계약 확정 |
+| `003-backend-simulation-api.md` | Implemented | Backend Worker | QA Reviewer | `backend/src/main/java`, `backend/src/test/java`, `backend/build.gradle` | API 구현 및 backend test/build 통과; QA 검토 후 Verified 승격 |
 | `004-docker-compose.md` | Draft | Infra Worker | Integrator | `docker-compose.yml`, `frontend/Dockerfile`, `backend/Dockerfile`, `.env.example` | 003 구현 및 JDK 17 이후 통합; .env.example placeholder 필요 |
 | `005-resignation-survival.md` | Draft | Planner | QA Reviewer | `docs/plans/005-resignation-survival.md` | 후속 도메인 |
 | `006-rent-vs-jeonse.md` | Draft | Planner | QA Reviewer | `docs/plans/006-rent-vs-jeonse.md`, future frontend/backend scope | Kakao Maps 기준 명시됨 |
@@ -25,8 +25,8 @@ OpenCode 멀티 에이전트 운영을 위한 작업 배정판이다.
 
 ## 다음 추천 작업
 1. JDK 17 이상을 설치/사용하고 `java -version`, `./gradlew test`로 backend 실행 환경을 확인한다.
-2. `003-backend-simulation-api.md`를 Backend Worker에 배정해 구현을 시작한다.
-3. `004-docker-compose.md`는 Plan 003 구현과 JDK 17 환경 확인 이후까지 `Draft`로 유지한다.
+2. `003-backend-simulation-api.md` QA 검토를 통과하면 `Verified`로 승격한다.
+3. `004-docker-compose.md`는 Plan 003 검증 이후까지 `Draft`로 유지한다.
 
 ## Team Mode 실행
 - Runbook: `docs/oh-my-opencode-runbook.md`

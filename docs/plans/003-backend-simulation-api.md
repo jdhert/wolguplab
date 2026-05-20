@@ -1,6 +1,6 @@
 # 003 Backend Simulation API
 
-Status: Ready
+Status: Implemented
 
 Depends on:
 - `001-project-setup.md`
@@ -21,8 +21,8 @@ Blocked By:
 - JDK 17 이상 로컬 실행 환경 확인
 
 Handoff Notes:
-- 이 Plan은 API 계약, 검증 규칙, 계산 규칙, 패키지 구조, 테스트 조건이 정리되어 `Ready` 상태다.
-- 구현은 JDK 17 이상이 준비되고 backend Gradle 명령이 실행 가능한 상태에서 시작한다.
+- 이 Plan은 API 구현, 테스트, backend Gradle 검증까지 완료되어 `Implemented` 상태다.
+- QA Reviewer 검토가 통과하면 `Verified`로 승격한다.
 - `frontend/features/seoul-living/schema.ts`와 `frontend/features/seoul-living/types.ts`를 API 계약의 기준으로 삼는다.
 - 이전 초안의 `housingType`, `available`, `messages` 필드는 MVP 계약에서 제외한다.
 - 사용자 연봉, 자산, 월세 입력값은 MVP에서 저장하지 않는다.
@@ -342,30 +342,48 @@ JDK 17 이상이 준비되지 않았으면:
 - `backend/src/test/java`
 
 실제 변경 파일:
-- 구현 후 실제 변경 파일 목록으로 갱신한다.
+- `backend/src/main/java/com/wolguplab/backend/simulation/seoulliving/controller/SeoulLivingSimulationController.java`
+- `backend/src/main/java/com/wolguplab/backend/simulation/seoulliving/dto/SeoulLivingSimulationRequest.java`
+- `backend/src/main/java/com/wolguplab/backend/simulation/seoulliving/dto/SeoulLivingSimulationResponse.java`
+- `backend/src/main/java/com/wolguplab/backend/simulation/seoulliving/domain/SeoulDistrict.java`
+- `backend/src/main/java/com/wolguplab/backend/simulation/seoulliving/domain/LifestyleType.java`
+- `backend/src/main/java/com/wolguplab/backend/simulation/seoulliving/domain/SeoulLivingRiskLevel.java`
+- `backend/src/main/java/com/wolguplab/backend/simulation/seoulliving/service/SeoulLivingSimulationService.java`
+- `backend/src/main/java/com/wolguplab/backend/simulation/seoulliving/calculator/SeoulLivingCalculator.java`
+- `backend/src/main/java/com/wolguplab/backend/common/error/ApiErrorResponse.java`
+- `backend/src/main/java/com/wolguplab/backend/common/error/FieldErrorResponse.java`
+- `backend/src/main/java/com/wolguplab/backend/common/error/GlobalExceptionHandler.java`
+- `backend/src/main/java/com/wolguplab/backend/common/error/InvalidSimulationInputException.java`
+- `backend/src/test/java/com/wolguplab/backend/simulation/seoulliving/controller/SeoulLivingSimulationControllerTest.java`
+- `backend/src/test/java/com/wolguplab/backend/simulation/seoulliving/service/SeoulLivingSimulationServiceTest.java`
+- `backend/src/test/java/com/wolguplab/backend/simulation/seoulliving/calculator/SeoulLivingCalculatorTest.java`
 
 ## 검증 결과
 Status:
-- [x] Not Run
-- [ ] Passed
+- [ ] Not Run
+- [x] Passed
 - [ ] Failed
 - [ ] Skipped
 
 실행 명령:
-- 
+- `.\gradlew.bat test` (from `backend` directory)
+- `.\gradlew.bat build` (from `backend` directory)
 
 결과:
-- 
+- `.\gradlew.bat test`: BUILD SUCCESSFUL.
+- `.\gradlew.bat build`: BUILD SUCCESSFUL.
+- Forbidden backend API contract names `housingType`, `available`, `messages`: no matches in `backend/src/**/*.java`.
+- LSP diagnostics: skipped because `jdtls` is not installed in the local environment; Gradle compile/test/build passed.
 
 생략 사유:
-- 구현 전 Plan 정리 단계다.
+- 없음.
 
 ## 구현 요약
-아직 구현하지 않았다.
+`POST /api/simulations/seoul-living` API를 구현했다. Controller는 request/response 위임만 수행하고, Service는 district/lifestyle 도메인 변환과 응답 조립을 담당하며, Calculator는 Plan의 결정적 실수령/월세비중/저축액/위험도/경고/추천 규칙을 계산한다. Request DTO에는 Bean Validation 범위를 적용했고, 공통 400 validation error response와 malformed JSON/field-specific decimal money/unknown JSON field 처리를 추가했다. 계산기, 서비스/도메인, WebMvc API 테스트로 Plan의 경계값, 예시 응답, validation 오류, PostgreSQL 비의존성을 검증했다.
 
 ## 후속 작업
-- JDK 17 이상 환경을 확인한 뒤 Backend Worker에게 이 Plan을 배정한다.
-- `004-docker-compose.md`는 Plan 003 구현과 검증 이후 Ready 여부를 다시 판단한다.
+- QA Reviewer 검토가 통과하면 `Verified`로 승격한다.
+- `004-docker-compose.md`는 Plan 003 검증 이후 Ready 여부를 다시 판단한다.
 - `005-resignation-survival.md`에서 퇴사 후 생존 가능 기간 API를 구현한다.
 - `006-rent-vs-jeonse.md`에서 월세 vs 전세 비교 API를 구현한다.
 - `007-car-affordability.md`에서 자차 유지 가능성 API를 구현한다.
