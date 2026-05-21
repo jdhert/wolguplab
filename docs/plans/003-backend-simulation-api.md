@@ -1,6 +1,6 @@
 # 003 Backend Simulation API
 
-Status: Implemented
+Status: Verified
 
 Depends on:
 - `001-project-setup.md`
@@ -21,8 +21,8 @@ Blocked By:
 - JDK 17 이상 로컬 실행 환경 확인
 
 Handoff Notes:
-- 이 Plan은 API 구현, 테스트, backend Gradle 검증까지 완료되어 `Implemented` 상태다.
-- QA Reviewer 검토가 통과하면 `Verified`로 승격한다.
+- 이 Plan은 API 구현, 테스트, backend Gradle 검증, PR merge 후 master 재검증까지 완료되어 `Verified` 상태다.
+- 최종 변경 파일과 검증 기록을 확인한 뒤 Integrator가 `Done` 승격 여부를 판단한다.
 - `frontend/features/seoul-living/schema.ts`와 `frontend/features/seoul-living/types.ts`를 API 계약의 기준으로 삼는다.
 - 이전 초안의 `housingType`, `available`, `messages` 필드는 MVP 계약에서 제외한다.
 - 사용자 연봉, 자산, 월세 입력값은 MVP에서 저장하지 않는다.
@@ -368,10 +368,12 @@ Status:
 실행 명령:
 - `.\gradlew.bat test` (from `backend` directory)
 - `.\gradlew.bat build` (from `backend` directory)
+- `.\gradlew.bat clean test build` (from `backend` directory after PR merge to `master`)
 
 결과:
 - `.\gradlew.bat test`: BUILD SUCCESSFUL.
 - `.\gradlew.bat build`: BUILD SUCCESSFUL.
+- `.\gradlew.bat clean test build`: BUILD SUCCESSFUL in `master` after PR merge.
 - Forbidden backend API contract names `housingType`, `available`, `messages`: no matches in `backend/src/**/*.java`.
 - LSP diagnostics: skipped because `jdtls` is not installed in the local environment; Gradle compile/test/build passed.
 
@@ -382,8 +384,8 @@ Status:
 `POST /api/simulations/seoul-living` API를 구현했다. Controller는 request/response 위임만 수행하고, Service는 district/lifestyle 도메인 변환과 응답 조립을 담당하며, Calculator는 Plan의 결정적 실수령/월세비중/저축액/위험도/경고/추천 규칙을 계산한다. Request DTO에는 Bean Validation 범위를 적용했고, 공통 400 validation error response와 malformed JSON/field-specific decimal money/unknown JSON field 처리를 추가했다. 계산기, 서비스/도메인, WebMvc API 테스트로 Plan의 경계값, 예시 응답, validation 오류, PostgreSQL 비의존성을 검증했다.
 
 ## 후속 작업
-- QA Reviewer 검토가 통과하면 `Verified`로 승격한다.
-- `004-docker-compose.md`는 Plan 003 검증 이후 Ready 여부를 다시 판단한다.
+- Integrator가 변경 파일과 검증 기록을 최종 확인한 뒤 `Done` 승격 여부를 판단한다.
+- `004-docker-compose.md`는 Plan 003 검증 결과를 기준으로 Ready 여부를 다시 판단한다.
 - `005-resignation-survival.md`에서 퇴사 후 생존 가능 기간 API를 구현한다.
 - `006-rent-vs-jeonse.md`에서 월세 vs 전세 비교 API를 구현한다.
 - `007-car-affordability.md`에서 자차 유지 가능성 API를 구현한다.
