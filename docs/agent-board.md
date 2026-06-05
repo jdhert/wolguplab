@@ -14,6 +14,7 @@ OpenCode 멀티 에이전트 운영을 위한 작업 배정판이다.
 | `007-car-affordability.md` | Draft | Planner | QA Reviewer | `docs/plans/007-car-affordability.md` | 후속 도메인 |
 | `008-subscription-reality.md` | Draft | Planner | QA Reviewer | `docs/plans/008-subscription-reality.md` | 후속 도메인 |
 | `009-government-support.md` | Draft | Planner | QA Reviewer | `docs/plans/009-government-support.md` | 후속 도메인 |
+| `010-frontend-backend-integration.md` | Ready | Frontend Worker | QA Reviewer | `frontend/features/seoul-living`, `frontend/lib`, `frontend/app`, `.env.example` | Mock 결과를 003 backend API 호출로 교체 |
 
 ## 운영 규칙
 - `Owner`가 실제 구현 책임자다.
@@ -24,9 +25,9 @@ OpenCode 멀티 에이전트 운영을 위한 작업 배정판이다.
 - `Done`은 QA 또는 Integrator 검증 이후에만 사용할 수 있다.
 
 ## 다음 추천 작업
-1. JDK 17 이상을 설치/사용하고 `java -version`, `./gradlew test`로 backend 실행 환경을 확인한다.
-2. frontend-backend integration Plan을 작성해 Mock UI와 backend API 연결 범위를 정한다.
-3. `004-docker-compose.md`는 Plan 003 완료와 integration 방향을 기준으로 `Ready` 승격 여부를 판단한다.
+1. `010-frontend-backend-integration.md`를 Frontend Worker에 배정해 Mock UI와 backend API를 연결한다.
+2. 구현 후 frontend 검증 4종과 backend smoke 흐름을 확인한다.
+3. `004-docker-compose.md`는 Plan 010 구현 이후 `Ready` 승격 여부를 판단한다.
 
 ## Team Mode 실행
 - Runbook: `docs/oh-my-opencode-runbook.md`
