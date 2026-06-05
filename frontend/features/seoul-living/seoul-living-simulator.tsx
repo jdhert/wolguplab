@@ -1,17 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, ArrowRight, RotateCcw } from "lucide-react";
 import { useForm, type FieldPath, type UseFormReturn } from "react-hook-form";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
+import { createSeoulLivingReport, SeoulLivingApiError } from "./api";
 import {
   lifestyleOptions,
   seoulDistricts,
   seoulLivingSchema,
   type SeoulLivingFormValues,
 } from "./schema";
-import { createMockSeoulLivingReport, formatKrw } from "./mock-report";
+import { formatKrw } from "./mock-report";
 import type { SeoulLivingReport } from "./types";
 
 type Step = {
@@ -61,6 +62,9 @@ const defaultValues: SeoulLivingFormValues = {
 export function SeoulLivingSimulator() {
   const [stepIndex, setStepIndex] = useState(0);
   const [isReportVisible, setIsReportVisible] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [fieldErrorMessages, setFieldErrorMessages] = useState<string[]>([]);
   const [report, setReport] = useState<SeoulLivingReport | null>(null);
   const form = useForm<SeoulLivingFormValues>({
     resolver: zodResolver(seoulLivingSchema),
@@ -72,21 +76,45 @@ export function SeoulLivingSimulator() {
   const progress = ((stepIndex + 1) / steps.length) * 100;
 
   const goNext = async () => {
+    if (isSubmitting) {
+      return;
+    }
+
     const isValid = await form.trigger(currentStep.fields);
     if (!isValid) {
       return;
     }
 
     if (stepIndex === steps.length - 1) {
-      setReport(createMockSeoulLivingReport(form.getValues()));
-      setIsReportVisible(true);
+      setIsSubmitting(true);
+      setErrorMessage(null);
+      setFieldErrorMessages([]);
+
+      try {
+        setReport(await createSeoulLivingReport(form.getValues()));
+        setIsReportVisible(true);
+      } catch (error) {
+        const apiError = error instanceof SeoulLivingApiError ? error : null;
+
+        setReport(null);
+        setIsReportVisible(false);
+        setErrorMessage(apiError?.message ?? "리포트를 만들지 못했습니다. 잠시 후 다시 시도해주세요.");
+        setFieldErrorMessages(apiError?.fieldErrors.map((fieldError) => fieldError.message) ?? []);
+      } finally {
+        setIsSubmitting(false);
+      }
+
       return;
     }
 
+    setErrorMessage(null);
+    setFieldErrorMessages([]);
     setStepIndex((value) => value + 1);
   };
 
   const goBack = () => {
+    setErrorMessage(null);
+    setFieldErrorMessages([]);
     setStepIndex((value) => Math.max(0, value - 1));
   };
 
@@ -94,6 +122,9 @@ export function SeoulLivingSimulator() {
     form.reset(defaultValues);
     setStepIndex(0);
     setIsReportVisible(false);
+    setIsSubmitting(false);
+    setErrorMessage(null);
+    setFieldErrorMessages([]);
     setReport(null);
   };
 
@@ -101,7 +132,7 @@ export function SeoulLivingSimulator() {
     return (
       <section className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
         <div className="rounded-lg border border-black/10 bg-white p-5 shadow-soft">
-          <p className="text-sm font-bold text-mint">Mock Report</p>
+          <p className="text-sm font-bold text-mint">생활 리포트</p>
           <h2 className="mt-3 text-3xl font-black text-ink">{report.grade}</h2>
           <p className="mt-3 text-base leading-7 text-ink/68">{report.headline}</p>
           <dl className="mt-6 grid gap-3">
@@ -148,10 +179,12 @@ export function SeoulLivingSimulator() {
           <div className="mt-6">{renderStepFields(stepIndex, form)}</div>
         </div>
 
+        {errorMessage ? <SubmitError message={errorMessage} fieldMessages={fieldErrorMessages} /> : null}
+
         <div className="flex items-center justify-between gap-3 border-t border-black/10 pt-5">
           <button
             className="inline-flex h-11 items-center gap-2 rounded-lg border border-black/10 px-4 text-sm font-bold text-ink disabled:cursor-not-allowed disabled:opacity-40"
-            disabled={stepIndex === 0}
+            disabled={stepIndex === 0 || isSubmitting}
             onClick={goBack}
             type="button"
           >
@@ -159,16 +192,51 @@ export function SeoulLivingSimulator() {
             이전
           </button>
           <button
-            className="inline-flex h-11 items-center gap-2 rounded-lg bg-mint px-4 text-sm font-bold text-white"
+            aria-busy={isSubmitting}
+            className="inline-flex h-11 items-center gap-2 rounded-lg bg-mint px-4 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={isSubmitting}
             onClick={goNext}
             type="button"
           >
-            {stepIndex === steps.length - 1 ? "리포트 보기" : "다음"}
+            {getNextButtonLabel(stepIndex, isSubmitting, Boolean(errorMessage))}
             <ArrowRight aria-hidden="true" className="h-4 w-4" />
           </button>
         </div>
       </form>
     </section>
+  );
+}
+
+function getNextButtonLabel(stepIndex: number, isSubmitting: boolean, hasError: boolean) {
+  if (isSubmitting) {
+    return "리포트 생성 중";
+  }
+
+  if (stepIndex === steps.length - 1) {
+    return hasError ? "다시 시도" : "리포트 보기";
+  }
+
+  return "다음";
+}
+
+function SubmitError({
+  fieldMessages,
+  message,
+}: {
+  fieldMessages: string[];
+  message: string;
+}) {
+  return (
+    <div className="rounded-lg border border-coral/30 bg-coral/10 p-4" role="alert">
+      <p className="text-sm font-bold text-coral">{message}</p>
+      {fieldMessages.length > 0 ? (
+        <ul className="mt-2 grid gap-1 text-sm font-semibold text-ink/70">
+          {fieldMessages.map((fieldMessage) => (
+            <li key={fieldMessage}>{fieldMessage}</li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
   );
 }
 

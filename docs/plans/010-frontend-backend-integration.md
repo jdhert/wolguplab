@@ -1,6 +1,6 @@
 # 010 Frontend Backend Integration
 
-Status: Ready
+Status: Verified
 
 Depends on:
 - `002-frontend-simulation-form.md`
@@ -26,7 +26,7 @@ Handoff Notes:
 - `002-frontend-simulation-form.md`의 Mock UI와 `003-backend-simulation-api.md`의 실제 API를 연결한다.
 - 프론트 입력 단위는 `만원`이고 backend API 계약은 KRW 원 단위 정수이므로 요청 직전에 금액 필드를 `* 10_000` 변환한다.
 - 응답은 `SeoulLivingReport`와 호환되므로 기존 리포트 UI를 최대한 유지한다.
-- 이 Plan은 API 연동 범위가 정리되어 `Ready` 상태다.
+- 이 Plan은 API 연동 구현과 필수 검증이 완료되어 `Verified` 상태이며, `Done`으로는 승격하지 않았다.
 
 ## 작업 목표
 서울 자취 가능성 프론트엔드 Mock 결과 생성을 실제 backend API 호출로 교체한다.
@@ -172,26 +172,46 @@ Required behavior:
 - `docs/plans/010-frontend-backend-integration.md`
 
 실제 변경 파일:
-- 구현 후 실제 변경 파일 목록으로 갱신한다.
+- `frontend/features/seoul-living/api.ts`
+- `frontend/features/seoul-living/request.ts`
+- `frontend/features/seoul-living/request.test.ts`
+- `frontend/features/seoul-living/seoul-living-simulator.tsx`
+- `frontend/features/seoul-living/seoul-living-simulator.test.tsx`
+- `docs/plans/010-frontend-backend-integration.md`
 
 ## 검증 결과
 Status:
-- [x] Not Run
-- [ ] Passed
+- [ ] Not Run
+- [x] Passed
 - [ ] Failed
 - [ ] Skipped
 
 실행 명령:
--
+- `npm run lint` (from `frontend` directory)
+- `npm run type-check` (from `frontend` directory)
+- `npm run test` (from `frontend` directory)
+- `npm run build` (from `frontend` directory)
+- Browser manual QA with local Next dev server and Playwright-routed backend-compatible `POST /api/simulations/seoul-living` responses
 
 결과:
--
+- `npm run lint`: passed.
+- `npm run type-check`: passed. `next typegen` generated route types and `tsc --noEmit` completed successfully.
+- `npm run test`: passed. 3 test files, 6 tests.
+- `npm run build`: passed. Next.js production build completed successfully.
+- Manual QA success path: `/simulations/seoul-living` submitted `POST /api/simulations/seoul-living`, converted form money values from `만원` to KRW integers, and rendered the backend-compatible report in the existing report UI.
+- Manual QA loading/error path: delayed backend-compatible 400 response showed `리포트 생성 중`, preserved the final input step, displayed `입력값을 확인해주세요.` and field error `연봉을 입력해주세요.`, and exposed the retry button.
+- LSP diagnostics for changed TypeScript files could not run because `typescript-language-server` is not installed in the local environment; the project type-check/build passed.
 
 생략 사유:
-- 구현 전 Plan 정리 단계다.
+- LSP diagnostics only: local `typescript-language-server` command is not installed.
 
 ## 구현 요약
-아직 구현하지 않았다.
+- 서울 자취 가능성 마지막 submit 흐름에서 Mock report 생성을 제거하고 `POST /api/simulations/seoul-living` 호출로 교체했다.
+- `SeoulLivingFormValues`를 backend request DTO로 변환하는 request mapper를 추가하고, 금액 필드를 `만원 * 10_000` KRW integer로 변환한다.
+- backend base URL은 browser-exposed `NEXT_PUBLIC_BACKEND_API_BASE_URL`을 사용하고, 값이 없으면 같은 origin의 `/api/simulations/seoul-living` 경로로 요청한다.
+- backend 성공 응답은 기존 `SeoulLivingReport` UI에 표시하고 `Mock Report` 문구는 실제 결과에 맞춰 `생활 리포트`로 변경했다.
+- 요청 중 버튼 중복 클릭을 막고 loading label을 보여주며, network/400/5xx/response shape 오류를 사용자 메시지와 retry 가능한 error 상태로 표시한다.
+- request 변환 단위 테스트와 API 성공/실패 submit flow 테스트를 추가했다.
 
 ## 후속 작업
 - 구현 완료 후 `004-docker-compose.md`에서 frontend와 backend를 함께 실행하는 Compose 구성을 Ready로 승격할지 판단한다.
